@@ -1,12 +1,14 @@
-function t = test_parallel_denoise_bm4d(path)
+function t = test_parallel_denoise_bm4d(path_in, path_out)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 t0=tic;
 
-dir = rdir([path, '/**/*.nii.gz']);
+dir = rdir([path_in, '/**/*.nii.gz']);
 disp(size(dir,1))
 
-parfor i=1:size(dir,1)
+a= path_out;
+
+for i=1:size(dir,1)
 % for i=1:size(dir,1)    
     disp('-------------------------------------------------------------')
     fprintf('processing: %s \n', dir(i).name)
@@ -19,12 +21,12 @@ parfor i=1:size(dir,1)
     I = V.img;
     
     disp('Making dir');
-    [filepath,name,ext] = fileparts(path_src);
-    path_make = strrep(filepath,'original','denoised');
+    [filepath,~,~] = fileparts(path_src);
+    path_make = strrep(filepath,path_in,path_out);
     mkdir(path_make)
     
-    path_dest = strrep(path_src,'original','denoised');
-    if isfile(path_dest)
+    path_dest = strrep(path_src,path_in,path_out);
+    if exist(path_dest, 'file')
         disp('done already...')
     else
         path_temp = strrep(path_dest,'.nii.gz','.nii');    
