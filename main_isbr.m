@@ -2,7 +2,7 @@
 clc; clear all; close all;
 
 
-is_laptop = true;
+is_laptop = false;
 % path = ''
 
 if is_laptop
@@ -15,9 +15,9 @@ end
 
 disp(size(dir,1))
 
-% parpool(6)
-% parfor i=1:size(dir,1)
-for i=1:size(dir,1)
+parpool(6)
+parfor i=1:size(dir,1)
+% for i=1:size(dir,1)
     disp('-------------------------------------------------------------')
     fprintf('processing: %s \n', dir(i).name)
     disp('-------------------------------------------------------------')
@@ -29,25 +29,29 @@ for i=1:size(dir,1)
     mkdir(path_make)
     path_dest = strrep(path_src,'original','denoised');
     
-    if contains(dir(i).name, "segTRI") 
-        disp('>> apply bm4d...')
-        disp('Reading volume')
-        V = niftiread(path_src);
-        if isfile(path_dest)
+    if isfile(path_dest)
             disp('done already...')
-        else
+    else
+        if contains(dir(i).name, "strip") 
+            disp('>> apply bm4d...')
+            disp('Reading volume')
+            V = load_untouch_nii(path_src);
+            V_denoised = V;
+            I = V.img;
             path_temp = strrep(path_dest,'.nii.gz','.nii');
 
             disp('Denoising started');
-            y_est_auto = bm4d(V);
+            y_est_auto = bm4d(I);
+            
             disp('Writing volume');
-            niftiwrite(y_est_auto,path_temp)
+            V_denoised.img = y_est_auto;
+            save_untouch_nii(V_denoised,path_temp)
             gzip(path_temp)
             disp('Deleting nii');
             delete(path_temp) 
+        else
+            disp('>> copy...')
+            copyfile(path_src, path_dest)
         end
-    else
-        disp('>> copy...')
-        copyfile(path_src, path_dest)
     end
 end
