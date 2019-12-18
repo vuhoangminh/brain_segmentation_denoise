@@ -2,7 +2,7 @@
 clc; clear all; close all;
 
 
-is_laptop = true;
+is_laptop = false;
 % path = ''
 
 if is_laptop
@@ -15,9 +15,9 @@ end
 
 disp(size(dir,1))
 
-% parpool(6)
-% parfor i=1:size(dir,1)
-for i=1:size(dir,1)
+parpool(6)
+parfor i=1:size(dir,1)
+% for i=1:size(dir,1)
     disp('-------------------------------------------------------------')
     fprintf('processing: %s \n', dir(i).name)
     disp('-------------------------------------------------------------')
